@@ -1,0 +1,13 @@
+/* this is the game */
+
+#include <stdio.h>
+#include <stdint.h>
+#include "universe.h"
+
+int main() {
+	struct Position position = { 0,0,0 };
+	struct Velocity velocity = { 0,0,0 };
+	printf("hello world\n");
+	move( &position, &velocity );
+	return 0;
+}
