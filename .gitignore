@@ -4,6 +4,7 @@
 # Project Executables
 sylence
 computeCordic
+cordicValues.txt
 
 # Prerequisites
 *.d
