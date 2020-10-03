@@ -1,17 +1,13 @@
 #ifndef _UNIVERSE_
 #define _UNIVERSE_
 
-/* TODO:
- *	implement move
- *	test structs */
-
 /* This includes the structs and functions for everything associated with 
- * positions within the game. */
+ * location and movement within the game. */
 
 #include <stdint.h>
 
 /* Position contains:
- *	x y and z intiger coordinates. */
+ *	64 bit intiger coordinates x, y, and z. */
 struct Position {
 	int64_t x;
 	int64_t y;
@@ -19,11 +15,11 @@ struct Position {
 };
 
 /* Velocity contains:
- *	integer magnitude r.
+ *	32 bit integer velocity magintude r.
  *	polar angle theta:
- *		rads = theta/(MAX_INT) * 2 pi.
+ *		rads = theta/(0x4000000000000000) * 2pi.
  *	azimuthal angle phi:
- *		rads = phi/(MAX_INT) * 2 pi. */
+ *		rads = phi/(0x4000000000000000) * 2pi. */
 struct Velocity {
 	int32_t r;
 	int64_t theta;
