@@ -7,6 +7,7 @@
  * Optimize the multiply function for use with cordic
  * See if you can make the multiply chop off less bits
  * carry bit is already discarded so remove carry math
+ * fix this mess that you were using to make all 4 quadrents work
  * */
 
 
@@ -26,12 +27,22 @@ const int64_t tanAngle64[64] = {
 0x0000000000000014, 0x000000000000000A, 0x0000000000000005, 0x0000000000000002, 0x0000000000000001, 
 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000 };
 
+const int64_t xSigns[4] = {
+0x0000000000000000, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, 0x0000000000000000
+};
+
+const int64_t ySigns[4] = {
+0x0000000000000000, 0x0000000000000000, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF
+};
+
+const int64_t xyFlip[4] = {
+0x0000000000000000, 0xFFFFFFFFFFFFFFFF, 0x0000000000000000, 0xFFFFFFFFFFFFFFFF
+};
+
 
 int64_t cordic_hi_mul(int64_t num1, int64_t num2){
-
 	/* grab the sign of the two numbers */
 	int64_t sign = (num1 >> 63) ^ (num2 >> 63);
-	
 	/* convert to absolute value */
 	uint64_t temp = num1 >> 63;
 	num1 ^= temp;
@@ -39,35 +50,34 @@ int64_t cordic_hi_mul(int64_t num1, int64_t num2){
 	temp = num2 >> 63;
 	num2 ^= temp;
 	num2 += temp & 1;
-
 	/* seperate the multiplication into smaller chunks */
 	uint64_t    lo1 = (uint32_t)num1;
 	uint64_t    hi1 = num1 >> 32;
 	uint64_t    lo2 = (uint32_t)num2;
 	uint64_t    hi2 = num2 >> 32;
-
 	/* multiply the chunks */
 	uint64_t    hihi =  hi1 * hi2;
 	uint64_t    hilo = hi1 * lo2;
 	uint64_t    lohi = lo1 * hi2;
-	uint64_t    lolo =  lo1 * lo2;
 
+	/* uint64_t    lolo =  lo1 * lo2; */
 	/* calculate the cary bit */
-	uint64_t    carry_bit = ((uint64_t)(uint32_t)hilo + (uint64_t)(uint32_t)lohi + (lolo >> 32) ) >> 32;
+	/* uint64_t    carry_bit = ((uint64_t)(uint32_t)hilo + (uint64_t)(uint32_t)lohi + (lolo >> 32) ) >> 32; */
 
 	/* get the high value of the multiplication */
-	uint64_t    multhi = hihi + (hilo >> 32) + (lohi >> 32) + carry_bit;
-
+	uint64_t    multhi = hihi + (hilo >> 32) + (lohi >> 32) /*+ carry_bit*/;
 	/* return the high with the correct sign */
 	return ((int64_t)multhi ^ sign) - sign;
-
 }	
 
 void cordic_sin_cos(int64_t angle, int64_t* sin, int64_t* cos){
+	/* Get it to be an angle between 0x0 and 0x0FFFFFFFFFFFFFFF */
+	int64_t quad = (angle & 0x3000000000000000) >> 60;
+	angle = angle & 0x0FFFFFFFFFFFFFFF;
 	/* temp varaiables */
+	int64_t sign;
 	int64_t tempCos;
 	int64_t tempSin;
-	int64_t sign = 0;
 	/* temp variables for current values */
 	int64_t curCos = 0x26DD3B6A10D79A00;
 	int64_t curSin = 0x0;
@@ -85,7 +95,11 @@ void cordic_sin_cos(int64_t angle, int64_t* sin, int64_t* cos){
 		/* adjust current angle */
 		angle -= (tanAngle64[i] ^ sign) - sign;
 	}
-	*sin = curSin;
-	*cos = curCos;
+	/* flip the sin and cos if needed for the quadrent */
+	tempSin = (curSin & ~xyFlip[quad]) | (curCos & xyFlip[quad]);
+	tempCos = (curCos & ~xyFlip[quad]) | (curSin & xyFlip[quad]);
+	/* return the sin and cos but give the appropriate signs for the quadrent */
+	*sin = (tempSin ^ ySigns[quad]) - ySigns[quad];
+	*cos = (tempCos ^ xSigns[quad]) - xSigns[quad];
 }
 

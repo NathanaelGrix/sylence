@@ -2,7 +2,7 @@ PNM = ../sylence
 
 IDIR = ../include
 CC = gcc
-CFLAGS = -I$(IDIR) -g
+CFLAGS = -I$(IDIR) -g -lm
 
 ODIR = obj
 LDIR = ../lib
