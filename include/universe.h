@@ -14,20 +14,35 @@ struct Position {
 	int64_t z;
 };
 
-/* Velocity contains:
- *	32 bit integer velocity magintude r.
+/* Direction contains:
+ *	8 bit intigers normalized for the direction that we are facing */ 
+struct Direction {
+	int8_t xFace;
+	int8_t yFace;
+	int8_t zFace;
+};
+
+/* Velocity contains: 
+ *	a velocity with 64 bit components x, y, and z.*/
+struct Velocity {
+	int64_t x;
+	int64_t y;
+	int64_t z;
+};
+
+/*	32 bit integer velocity magintude r.
  *	polar angle theta:
  *		rads = theta/(0x4000000000000000) * 2pi.
  *	azimuthal angle phi:
  *		rads = phi/(0x4000000000000000) * 2pi. */
-struct Velocity {
-	int32_t r;
-	int64_t theta;
-	int64_t phi;
-};
 
-/* INOMPLETE
+/* INCOMPLETE
  * This changes the position given a velocity.
  * Returns: 0 if the position change was sucessful. */
-int move(struct Position* position, struct Velocity* velocity);
+int32_t move(struct Position* position, struct Velocity* velocity);
+
+/* INCOMPLETE
+ * This removes some velocity dependent on the current velocity.
+ * Returns: 0 if the velocity change was sucessful. */
+int32_t drag(struct Velocity* velocity, int64_t dragFrom128);
 #endif

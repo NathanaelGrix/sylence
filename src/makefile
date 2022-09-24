@@ -2,17 +2,17 @@ PNM = ../sylence
 
 IDIR = ../include
 CC = gcc
-CFLAGS = -I$(IDIR) -g -lm
+CFLAGS = -I$(IDIR) -g -lX11
 
 ODIR = obj
 LDIR = ../lib
 
 LIBS = 
 
-_DEPS = cordic.h universe.h
+_DEPS = cord.h universe.h sound.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = sylence.o cordic.o universe.o
+_OBJ = sylence.o cord.o universe.o sound.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 $(ODIR)/%.o : %.c $(DEPS)
@@ -28,6 +28,3 @@ all : $(PNM)
 
 clean :
 	rm -f $(ODIR)/*.o $(PNM)
-
-#sylence: sylence.c cordic.c cordic.h universe.c universe.h
-#	$(CC) -o sylence sylence.c cordic.c cordic.h universe.c universe.h

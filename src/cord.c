@@ -1,15 +1,13 @@
-#include "cordic.h"
+#include "cord.h"
 #include <stdio.h>
+
 /* TODO:
  * see if I can generate better table values 
  * see if it is faster to use less temp variables and just directly use the variables 
- * create a function to multiply by cos and sin output
  * Optimize the multiply function for use with cordic
  * See if you can make the multiply chop off less bits
- * carry bit is already discarded so remove carry math
- * fix this mess that you were using to make all 4 quadrents work
- * */
-
+ * carry bit is already discarded so remove carry math 
+ * implement fixed point square root */
 
 /* a look up table for the 64 bit tangent angles for CORDIC */
 const int64_t tanAngle64[64] = {
@@ -40,7 +38,7 @@ const int64_t xyFlip[4] = {
 };
 
 
-int64_t cordic_hi_mul(int64_t num1, int64_t num2){
+int64_t cord_hi_mul(int64_t num1, int64_t num2){
 	/* grab the sign of the two numbers */
 	int64_t sign = (num1 >> 63) ^ (num2 >> 63);
 	/* convert to absolute value */
@@ -70,7 +68,7 @@ int64_t cordic_hi_mul(int64_t num1, int64_t num2){
 	return ((int64_t)multhi ^ sign) - sign;
 }	
 
-void cordic_sin_cos(int64_t angle, int64_t* sin, int64_t* cos){
+void cord_sin_cos(int64_t angle, int64_t* sin, int64_t* cos){
 	/* Get it to be an angle between 0x0 and 0x0FFFFFFFFFFFFFFF */
 	int64_t quad = (angle & 0x3000000000000000) >> 60;
 	angle = angle & 0x0FFFFFFFFFFFFFFF;
@@ -103,3 +101,14 @@ void cordic_sin_cos(int64_t angle, int64_t* sin, int64_t* cos){
 	*cos = (tempCos ^ xSigns[quad]) - xSigns[quad];
 }
 
+/* float = 2^23*E + M
+ * float val = (1 + M / (2^23)) * 2^(E - 127)
+ * float log(val) = log(1 + M / (2^23)) + (E - 127)
+ * fixed = M
+ * fixed val = M / (2^63) * 2^32
+ * fixed log(val) = (log(M) - 63) + (32)
+ *
+ * */
+void cord_inv_sqrt( int64_t number ){
+	
+}

@@ -1,5 +1,8 @@
 /* This is for calculating the cordic table values.
- * I defently don't need to do it this way but it looked fun */
+ * I defently don't need to do it this way but it looked fun 
+ * For inverse squareroot number: 
+ * 	R2 = 0.4327448899594431954685215869960103736197824078381304994449300410431678697119651115913305905875633011079052731074719884699781387764866511348079281821343435490436
+ * /
 
 /* TODO:
  * get better table values
